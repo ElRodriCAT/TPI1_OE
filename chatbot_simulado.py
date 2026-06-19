@@ -5,24 +5,44 @@ import os
 def cargar_bd():
     """Lee el archivo JSON para simular consultas en tiempo real"""
     if os.path.exists("base_datos.json"):
-        with open("base_datos.json", "r", encoding="utf-8") as f:
-            return json.load(f)
+        try:
+            with open("base_datos.json", "r", encoding="utf-8") as f:
+                datos = json.load(f)
+            claves_requeridas = {"productos", "zonas_cobertura", "pedidos_registrados"}
+            if not claves_requeridas.issubset(datos.keys()):
+                print("Error: base_datos.json tiene estructura incorrecta. Faltan claves requeridas.")
+                return {}
+            return datos
+        except json.JSONDecodeError:
+            print("Error: base_datos.json está corrupto o tiene formato inválido.")
+            return {}
+        except OSError as e:
+            print(f"Error al leer base_datos.json: {e}")
+            return {}
     return {}
 
 def guardar_bd(data):
     """Guarda las modificaciones en el JSON para persistir los datos"""
-    with open("base_datos.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+    try:
+        with open("base_datos.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+    except OSError as e:
+        print(f"\nAdvertencia: No se pudo guardar el pedido en la base de datos: {e}")
 
 # --- SIMULADOR DEL CHATBOT ---
 def ejecutar_bot():
     bd = cargar_bd()
-    
+
+    if not bd:
+        print("Error crítico: No se pudo cargar la base de datos. Verificá el archivo base_datos.json.")
+        return
+
     # Variables de estado conversacional (Memoria del Bot)
-    estado_actual = "IDLE" 
+    estado_actual = "IDLE"
     carrito = {}
     modalidad = None
     direccion = None
+    intentos_comprobante = 0
 
     print("=== SIMULADOR DE CHATBOT AUTOMATIZADO - BURGER HOME ===")
     print("Para iniciar el flujo, simula enviar un mensaje (Ej: 'Hola'). Para salir, escribe 'salir'.\n")
@@ -107,8 +127,11 @@ def ejecutar_bot():
             if entrada_usuario == "1":
                 print("\nBot ⚙️: ¡Pedido confirmado! Abonás al recibir/retirar.")
                 # TAREA DE SERVICIO: Confirmar pedido, descontar stock y guardar en DB
-                bd["productos"][carrito["id"]]["stock"] -= 1
-                
+                try:
+                    bd["productos"][carrito["id"]]["stock"] -= 1
+                except (KeyError, TypeError) as e:
+                    print(f"\nAdvertencia: No se pudo actualizar el stock: {e}")
+
                 nuevo_pedido = {"producto": carrito["nombre"], "modalidad": modalidad, "pago": "Efectivo", "direccion": direccion}
                 bd["pedidos_registrados"].append(nuevo_pedido)
                 guardar_bd(bd) # Persistencia real en el JSON
@@ -117,21 +140,32 @@ def ejecutar_bot():
                 print("Fin de la simulación del sistema automatizado.")
                 break
             elif entrada_usuario == "2":
-                print("\nBot ⚙️: Por favor, simula adjuntar tu comprobante (Escribí cualquier palabra para simular la carga del archivo):")
+                intentos_comprobante = 0
+                print("\nBot ⚙️: Por favor, adjuntá tu comprobante (simulá escribiendo el nombre del archivo, ej: comprobante.jpg):")
                 estado_actual = "ESPERANDO_COMPROBANTE"
             else:
                 print("\nBot ⚙️: Opción inválida. Seleccioná 1 para Efectivo o 2 para Transferencia.")
 
         elif estado_actual == "ESPERANDO_COMPROBANTE":
+            intentos_comprobante += 1
             # ROBUSTEZ (Camino Infeliz): Validación simulada de archivo
-            if len(entrada_usuario) < 3:
-                print("\nBot ⚙️: Error: El comprobante parece inválido o ilegible. Por favor, cargalo de nuevo:")
-                continue # Bucle de reintento del comprobante
-            
+            extension_valida = "." in entrada_usuario and entrada_usuario.split(".")[-1].lower() in ["jpg", "jpeg", "png", "pdf"]
+            if len(entrada_usuario) < 3 or not extension_valida:
+                if intentos_comprobante >= 3:
+                    print("\nBot ⚙️: Superaste el máximo de intentos. Pedido cancelado.")
+                    print("Fin de la simulación: Pedido Cancelado por comprobante inválido.")
+                    break
+                print(f"\nBot ⚙️: Comprobante inválido. El archivo debe tener extensión jpg, jpeg, png o pdf.")
+                print(f"Intentos restantes: {3 - intentos_comprobante}. Ingresalo de nuevo:")
+                continue
+
             print("\nBot ⚙️: Comprobante validado con éxito.")
             # TAREA DE SERVICIO: Confirmar pedido, descontar stock y guardar en DB
-            bd["productos"][carrito["id"]]["stock"] -= 1
-            
+            try:
+                bd["productos"][carrito["id"]]["stock"] -= 1
+            except (KeyError, TypeError) as e:
+                print(f"\nAdvertencia: No se pudo actualizar el stock: {e}")
+
             nuevo_pedido = {"producto": carrito["nombre"], "modalidad": modalidad, "pago": "Transferencia", "direccion": direccion}
             bd["pedidos_registrados"].append(nuevo_pedido)
             guardar_bd(bd) # Persistencia real en el JSON
