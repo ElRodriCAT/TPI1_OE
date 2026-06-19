@@ -23,7 +23,7 @@
         "5": {
             "nombre": "Combo Pollo Crispy",
             "precio": 5000,
-            "stock": 12
+            "stock": 10
         },
         "6": {
             "nombre": "Combo Fish & Chips",
@@ -39,7 +39,9 @@
     "zonas_cobertura": [
         "centro",
         "macrocentro",
-        "barrio norte"
+        "barrio norte",
+        "barrio sur",
+        "barrio oeste"
     ],
     "pedidos_registrados": [
         {
@@ -47,6 +49,18 @@
             "modalidad": "Retiro",
             "pago": "Efectivo",
             "direccion": null
+        },
+        {
+            "producto": "Combo Pollo Crispy",
+            "modalidad": "Delivery",
+            "pago": "Efectivo",
+            "direccion": "centro"
+        },
+        {
+            "producto": "Combo Pollo Crispy",
+            "modalidad": "Delivery",
+            "pago": "Transferencia",
+            "direccion": "macrocentro"
         }
     ]
 }

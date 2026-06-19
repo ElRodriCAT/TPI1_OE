@@ -59,7 +59,7 @@ def ejecutar_bot():
         
         if estado_actual == "IDLE":
             # Tarea de Servicio: Saludo y Despliegue de Menú Dinámico
-            print("\nBot ⚙️: ¡Hola! Bienvenido a Burger Home. Este es nuestro menú disponible:")
+            print("\nBot : ¡Hola! Bienvenido a Burger Home. Este es nuestro menú disponible:")
             for id_prod, info in bd["productos"].items():
                 print(f"  [{id_prod}] {info['nombre']} - ${info['precio']} (Stock: {info['stock']})")
             print("Por favor, ingresá el número del combo que querés pedir.")
@@ -68,14 +68,14 @@ def ejecutar_bot():
         elif estado_actual == "ESPERANDO_PRODUCTO":
             # ROBUSTEZ (Camino Infeliz): Validar si ingresó una opción válida
             if entrada_usuario not in bd["productos"]:
-                print("\nBot ⚙️: Opción inválida. Por favor, ingresá una opcion válida del menú.")
+                print("\nBot : Opción inválida. Por favor, ingresá una opcion válida del menú.")
                 continue # Mantiene el flujo atrapado en el mismo estado
 
             producto_seleccionado = bd["productos"][entrada_usuario]
             
             # COMPUERTA COMPLEJA: ¿Hay stock disponible?
             if producto_seleccionado["stock"] <= 0:
-                print(f"\nBot ⚙️: Disculpame, nos quedamos sin stock de {producto_seleccionado['nombre']}.")
+                print(f"\nBot : Disculpame, nos quedamos sin stock de {producto_seleccionado['nombre']}.")
                 print("Fin de la simulación: Pedido Cancelado.")
                 estado_actual = "IDLE"
                 break
@@ -87,7 +87,7 @@ def ejecutar_bot():
                 "precio": producto_seleccionado["precio"]
             }
             
-            print(f"\nBot ⚙️: Seleccionaste {carrito['nombre']}.")
+            print(f"\nBot : Seleccionaste {carrito['nombre']}.")
             print("¿Cómo preferís tu pedido? Ingresá:\n [1] Delivery\n [2] Retiro en Local")
             estado_actual = "ESPERANDO_MODALIDAD"
 
@@ -95,16 +95,16 @@ def ejecutar_bot():
             # COMPUERTA EXCLUSIVA: ¿Es Delivery?
             if entrada_usuario == "1":
                 modalidad = "Delivery"
-                print("\nBot ⚙️: Por favor, ingresá tu barrio para verificar si tenemos cobertura:")
+                print("\nBot : Por favor, ingresá tu barrio para verificar si tenemos cobertura:")
                 estado_actual = "ESPERANDO_DIRECCION"
             elif entrada_usuario == "2":
                 modalidad = "Retiro"
                 # Salta directo a calcular importe (Igual que en el BPMN)
-                print(f"\nBot ⚙️: Perfecto. El total a abonar es: ${carrito['precio']}.")
+                print(f"\nBot : Perfecto. El total a abonar es: ${carrito['precio']}.")
                 print("¿Cómo vas a pagar?\n [1] Efectivo\n [2] Transferencia Bancaria")
                 estado_actual = "ESPERANDO_PAGO"
             else:
-                print("\nBot ⚙️: Opción inválida. Ingresá 1 para Delivery o 2 para Retiro.")
+                print("\nBot : Opción inválida. Ingresá 1 para Delivery o 2 para Retiro.")
 
         elif estado_actual == "ESPERANDO_DIRECCION":
             # Tarea de Servicio: Validar Zona de Cobertura
@@ -113,19 +113,19 @@ def ejecutar_bot():
             # COMPUERTA EXCLUSIVA: ¿Zona en cobertura?
             if barrio in bd["zonas_cobertura"]:
                 direccion = entrada_usuario
-                print(f"\nBot ⚙️: ¡Genial! {entrada_usuario} está en nuestra zona de cobertura.")
+                print(f"\nBot : ¡Genial! {entrada_usuario} está en nuestra zona de cobertura.")
                 print(f"El total a abonar es: ${carrito['precio']}.")
-                print("¿Cómo vas a pagar?\n [1] Efectivo\n [2] Transferencia Bancaria")
+                print("¿Cómo vas a pagar?\n [1] Efectivo\n [2] Transferencia Bancaria/tarjeta de crédito")
                 estado_actual = "ESPERANDO_PAGO"
             else:
-                print(f"\nBot ⚙️: Lo lamento, no llegamos hasta {entrada_usuario} con nuestros repartidores.")
+                print(f"\nBot : Lo lamento, no llegamos hasta {entrada_usuario} con nuestros repartidores.")
                 print("Fin de la simulación: Pedido Cancelado por falta de cobertura.")
                 estado_actual = "IDLE"
                 break
 
         elif estado_actual == "ESPERANDO_PAGO":
             if entrada_usuario == "1":
-                print("\nBot ⚙️: ¡Pedido confirmado! Abonás al recibir/retirar.")
+                print("\nBot : ¡Pedido confirmado! Abonás al recibir/retirar.")
                 # TAREA DE SERVICIO: Confirmar pedido, descontar stock y guardar en DB
                 try:
                     bd["productos"][carrito["id"]]["stock"] -= 1
@@ -141,10 +141,10 @@ def ejecutar_bot():
                 break
             elif entrada_usuario == "2":
                 intentos_comprobante = 0
-                print("\nBot ⚙️: Por favor, adjuntá tu comprobante (simulá escribiendo el nombre del archivo, ej: comprobante.jpg):")
+                print("\nBot : Por favor, adjuntá tu comprobante (simulá escribiendo el nombre del archivo, ej: comprobante.jpg):")
                 estado_actual = "ESPERANDO_COMPROBANTE"
             else:
-                print("\nBot ⚙️: Opción inválida. Seleccioná 1 para Efectivo o 2 para Transferencia.")
+                print("\nBot : Opción inválida. Seleccioná 1 para Efectivo o 2 para Transferencia.")
 
         elif estado_actual == "ESPERANDO_COMPROBANTE":
             intentos_comprobante += 1
@@ -152,14 +152,14 @@ def ejecutar_bot():
             extension_valida = "." in entrada_usuario and entrada_usuario.split(".")[-1].lower() in ["jpg", "jpeg", "png", "pdf"]
             if len(entrada_usuario) < 3 or not extension_valida:
                 if intentos_comprobante >= 3:
-                    print("\nBot ⚙️: Superaste el máximo de intentos. Pedido cancelado.")
+                    print("\nBot : Superaste el máximo de intentos. Pedido cancelado.")
                     print("Fin de la simulación: Pedido Cancelado por comprobante inválido.")
                     break
-                print(f"\nBot ⚙️: Comprobante inválido. El archivo debe tener extensión jpg, jpeg, png o pdf.")
+                print(f"\nBot : Comprobante inválido. El archivo debe tener extensión jpg, jpeg, png o pdf.")
                 print(f"Intentos restantes: {3 - intentos_comprobante}. Ingresalo de nuevo:")
                 continue
 
-            print("\nBot ⚙️: Comprobante validado con éxito.")
+            print("\nBot : Comprobante validado con éxito.")
             # TAREA DE SERVICIO: Confirmar pedido, descontar stock y guardar en DB
             try:
                 bd["productos"][carrito["id"]]["stock"] -= 1
