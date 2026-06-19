@@ -1,0 +1,52 @@
+{
+    "productos": {
+        "1": {
+            "nombre": "Combo Burger Simple",
+            "precio": 4500,
+            "stock": 5
+        },
+        "2": {
+            "nombre": "Combo Burger Doble",
+            "precio": 5800,
+            "stock": 10
+        },
+        "3": {
+            "nombre": "Combo Burger Mega Bacon",
+            "precio": 6500,
+            "stock": 0
+        },
+        "4": {
+            "nombre": "Combo Veggie",
+            "precio": 4000,
+            "stock": 8
+        },
+        "5": {
+            "nombre": "Combo Pollo Crispy",
+            "precio": 5000,
+            "stock": 12
+        },
+        "6": {
+            "nombre": "Combo Fish & Chips",
+            "precio": 5500,
+            "stock": 7
+        },
+        "7": {
+            "nombre": "Combo Veggie Deluxe",
+            "precio": 4800,
+            "stock": 3
+        }
+    },
+    "zonas_cobertura": [
+        "centro",
+        "macrocentro",
+        "barrio norte"
+    ],
+    "pedidos_registrados": [
+        {
+            "producto": "Combo Veggie Deluxe",
+            "modalidad": "Retiro",
+            "pago": "Efectivo",
+            "direccion": null
+        }
+    ]
+}

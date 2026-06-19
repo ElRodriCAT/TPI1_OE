@@ -1,9 +1,0 @@
-{
-  "productos": {
-    "1": {"nombre": "Combo Burger Simple", "precio": 4500, "stock": 5},
-    "2": {"nombre": "Combo Burger Doble", "precio": 5800, "stock": 10},
-    "3": {"nombre": "Combo Burger Mega Bacon", "precio": 6500, "stock": 0}
-  },
-  "zonas_cobertura": ["centro", "macrocentro", "barrio norte"],
-  "pedidos_registrados": []
-}
