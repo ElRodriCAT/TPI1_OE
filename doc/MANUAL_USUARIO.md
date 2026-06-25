@@ -8,8 +8,8 @@ Es un simulador de chatbot por consola que reproduce el flujo de toma de pedidos
 
 ## Requisitos previos
 
-- Python 3.x instalado
-- Archivo `base_datos.json` presente en el mismo directorio que `chatbot_simulado.py`
+- Python 3.10+ instalado
+- Archivo `base_datos.json` presente en el directorio raíz, junto a `chatbot_simulado.py`
 
 ---
 
@@ -63,6 +63,8 @@ Ingresá el nombre de tu barrio. Las zonas con cobertura disponibles son:
 | Centro        |
 | Macrocentro   |
 | Barrio Norte  |
+| Barrio Sur    |
+| Barrio Oeste  |
 
 Si el barrio no tiene cobertura, el pedido se cancela.
 
@@ -74,7 +76,7 @@ Si el barrio no tiene cobertura, el pedido se cancela.
 ```
 
 - **Efectivo:** el pedido se confirma de inmediato.
-- **Transferencia:** el bot te pedirá que adjuntes el comprobante (en la simulación, escribí cualquier texto de 3 o más caracteres).
+- **Transferencia:** el bot te pedirá que adjuntes el comprobante. En la simulación, escribí un nombre de archivo válido (mínimo 3 caracteres y extensión `jpg`, `jpeg`, `png` o `pdf`, por ejemplo `comprobante.jpg`). Tenés hasta **3 intentos**; si los superás, el pedido se cancela.
 
 ### 6. Confirmación del pedido
 
@@ -130,4 +132,4 @@ El sistema lee y escribe sobre este archivo JSON. Contiene tres secciones:
 | Producto sin stock               | Cancela el pedido y termina la simulación     |
 | Barrio sin cobertura             | Cancela el pedido y termina la simulación     |
 | Opción de modalidad inválida     | Vuelve a pedir sin avanzar                    |
-| Comprobante demasiado corto (<3) | Vuelve a pedir el comprobante sin avanzar     |
+| Comprobante inválido (corto o sin extensión válida) | Vuelve a pedir el comprobante; tras 3 intentos cancela el pedido |
