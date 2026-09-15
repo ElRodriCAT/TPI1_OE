@@ -1,127 +1,392 @@
-# Burger Home — Sistema Automatizado de Gestión de Pedidos
+# Burger Home - Sistema Automatizado de Gestión de Pedidos
 
-Burger Home es un sistema de toma automatizada de pedidos modelado como una **Máquina de Estados Finita (FSM)** que gobierna un **canal conversacional simulado** por consola. El orquestador (`chatbot_simulado.py`) actúa como motor de transición: mantiene el estado conversacional en memoria, evalúa la entrada del usuario contra **compuertas de decisión (gateways)** derivadas del modelo **BPMN 2.0** y delega la mutación del dominio a **tareas de servicio (Service Tasks)**. La persistencia se resuelve mediante un esquema de **persistencia documental indexada** sobre `base_datos.json`, sin dependencias externas de motor de base de datos.
+Trabajo Práctico Integrador de la materia **Organización Empresarial**.
 
-La arquitectura desacopla tres responsabilidades:
+**Alumno:** Rodrigo Moyano
 
-- **Capa de persistencia** — funciones `cargar_bd()` / `guardar_bd()`, que serializan y deserializan el documento JSON con validación estructural de claves requeridas.
-- **Motor de estados (FSM)** — el bucle principal en `ejecutar_bot()`, que despacha la lógica según `estado_actual`.
-- **Interfaz conversacional** — captura de entrada por consola (`input()`), modelada como **tarea de usuario (User Task)**.
+## Descripción
+
+Burger Home es una hamburguesería ficticia utilizada como caso de estudio para analizar y mejorar su proceso de gestión de pedidos.
+
+El proceso original se realiza principalmente de forma manual mediante WhatsApp. Como propuesta de mejora se desarrolló una simulación de chatbot en **Python**, modelada previamente mediante **BPMN 2.0**.
+
+El chatbot utiliza una **Máquina de Estados Finitos (FSM)** para controlar las diferentes etapas de la conversación y un archivo **JSON** como mecanismo de persistencia simulado para almacenar productos, stock, zonas de cobertura y pedidos registrados.
+
+El objetivo principal del proyecto es mantener coherencia entre:
+
+- El proceso de negocio modelado mediante BPMN.
+- Las decisiones y caminos alternativos del proceso.
+- La Máquina de Estados.
+- La lógica implementada en Python.
 
 ---
 
-## 🚀 Instrucciones de Ejecución
+## Tecnologías utilizadas
 
-### Requisitos previos
+- Python 3.10+
+- JSON
+- BPMN 2.0
+- Git y GitHub
 
-- **Python 3.10+** (no requiere dependencias de terceros; utiliza únicamente la biblioteca estándar: `json`, `os`).
-- El archivo `base_datos.json` debe residir en el mismo directorio que el orquestador.
+No se requieren librerías externas de Python.
 
-### Clonado del repositorio
+---
+
+## Estructura del proyecto
+
+```text
+TPI1_OE/
+│
+├── chatbot_simulado.py
+├── base_datos.json
+├── README.md
+│
+└── doc/
+    ├── TPI_Organizacion_Empresarial_Rodrigo_Moyano.pdf
+    └── TPI_Organizacion_Empresarial_Rodrigo_Moyano.docx
+```
+
+### Archivos principales
+
+**`chatbot_simulado.py`**
+
+Contiene la lógica principal del chatbot, las validaciones y la Máquina de Estados que controla el avance del pedido.
+
+**`base_datos.json`**
+
+Archivo utilizado como mecanismo de persistencia. Contiene:
+
+- Catálogo de productos.
+- Precios.
+- Stock.
+- Zonas de cobertura.
+- Pedidos registrados.
+
+**`doc/`**
+
+Contiene la documentación correspondiente al Trabajo Práctico Integrador, incluyendo los diagramas BPMN AS-IS y TO-BE.
+
+---
+
+## Ejecución
+
+### Requisitos
+
+Tener instalado **Python 3.10 o superior**.
+
+El archivo `base_datos.json` debe encontrarse en el mismo directorio que `chatbot_simulado.py`.
+
+### Clonar el repositorio
 
 ```bash
-git clone https://github.com/<organizacion>/TPI1_OE.git
+git clone https://github.com/ElRodriCAT/TPI1_OE.git
 cd TPI1_OE
 ```
 
-### Ejecución del orquestador principal
+### Ejecutar el chatbot
 
 ```bash
 python chatbot_simulado.py
 ```
 
-> En sistemas con coexistencia de intérpretes, invocar explícitamente `python3 chatbot_simulado.py`.
+En sistemas donde Python se ejecuta mediante `python3`:
 
-Para iniciar el flujo, simule el envío de un mensaje (por ejemplo, `Hola`). Para abortar la sesión en cualquier estado, ingrese `salir`.
-
----
-
-## 📁 Estructura de Archivos
-
-```
-TPI1_OE/
-├── chatbot_simulado.py          # Orquestador principal: motor FSM + capa de persistencia
-├── base_datos.json              # Persistencia documental indexada (productos, cobertura, pedidos)
-├── README.md                    # Documentación técnica y de arquitectura (este archivo)
-└── doc/                         # Informes técnicos y modelo conceptual del proceso
-    ├── MANUAL_USUARIO.md        # Guía funcional de operación del simulador
-    ├── diagrama_proceso.bpmn    # Modelo de proceso ejecutable (BPMN 2.0)
-    └── diagrama_proceso_bpmn.svg # Render vectorial del diagrama BPMN
+```bash
+python3 chatbot_simulado.py
 ```
 
----
+Para iniciar la simulación se debe ingresar un mensaje, por ejemplo:
 
-## ⚙️ Funcionamiento del Bot (Máquina de Estados)
+```text
+Hola
+```
 
-El motor conversacional implementa una FSM cuyo ciclo de vida del pedido transita por seis estados discretos. Cada iteración del bucle principal captura una entrada (User Task), evalúa las compuertas asociadas al estado vigente y, según el resultado, ejecuta una transición de estado o invoca una tarea de servicio.
+La palabra:
 
-### Estados del ciclo de vida del pedido
+```text
+salir
+```
 
-| Estado | Responsabilidad | Tipo de tarea BPMN |
-|---|---|---|
-| `IDLE` | Estado inicial. Despliega el menú dinámico desde `productos`. | Service Task (saludo + render de catálogo) |
-| `ESPERANDO_PRODUCTO` | Valida la selección de combo y verifica disponibilidad de stock. | User Task + Gateway |
-| `ESPERANDO_MODALIDAD` | Bifurca el flujo según modalidad de entrega. | Exclusive Gateway |
-| `ESPERANDO_DIRECCION` | Valida la zona de cobertura del barrio (solo Delivery). | Service Task + Gateway |
-| `ESPERANDO_PAGO` | Selecciona el medio de pago y bifurca según método. | Exclusive Gateway |
-| `ESPERANDO_COMPROBANTE` | Valida el comprobante de transferencia con loop de reintentos. | User Task + Gateway con convergencia |
-
-> **Nota de trazabilidad con BPMN 2.0:** el estado `ESPERANDO_DIRECCION` materializa la actividad conceptual de **validación de cobertura**, mientras que la actividad conceptual de **procesamiento del pedido** no es un estado conversacional sino una **tarea de servicio terminal** embebida en los estados `ESPERANDO_PAGO` (rama Efectivo) y `ESPERANDO_COMPROBANTE` (rama Transferencia): decremento atómico de inventario, registro de la transacción y alerta a cocina.
-
-### Caminos alternativos: Retiro en local vs. Delivery
-
-En `ESPERANDO_MODALIDAD` una **compuerta exclusiva (XOR)** divide el proceso:
-
-- **Delivery (`1`):** transiciona a `ESPERANDO_DIRECCION`, donde una segunda compuerta evalúa si el barrio normalizado pertenece a la colección `zonas_cobertura`. Si pertenece, avanza a `ESPERANDO_PAGO`; en caso contrario, cancela el pedido por falta de cobertura.
-- **Retiro en local (`2`):** **cortocircuita la validación de cobertura** y transiciona directamente a `ESPERANDO_PAGO`, calculando el importe a abonar. La dirección permanece `null` en el registro persistido.
-
-### Manejo de excepciones
-
-1. **Falta de stock (camino infeliz):** en `ESPERANDO_PRODUCTO`, si el campo `stock` del producto seleccionado es `<= 0`, el flujo notifica la indisponibilidad, retorna a `IDLE` y termina la simulación (pedido cancelado).
-2. **Loop de convergencia por comprobante inválido:** en `ESPERANDO_COMPROBANTE`, el comprobante se valida por longitud mínima y extensión permitida (`jpg`, `jpeg`, `png`, `pdf`). Ante un comprobante inválido, el contador `intentos_comprobante` se incrementa y el flujo **reintenta sobre el mismo estado (loop de convergencia)**. Al alcanzar el **umbral de tres reintentos**, la compuerta deriva a cancelación definitiva del pedido.
-3. **Entradas inválidas no terminales:** selecciones de menú, modalidad o pago inválidas mantienen el flujo atrapado en el estado vigente (`continue` / re-prompt) sin avanzar la transición, garantizando robustez del autómata.
+permite finalizar la simulación de manera controlada.
 
 ---
 
-## 🗄️ Arquitectura de la Base de Datos
+## Funcionamiento general
 
-El sistema adopta un modelo de **persistencia documental indexada** sobre el archivo `base_datos.json`, leído íntegramente en memoria al inicio (`cargar_bd()`) y reescrito de forma completa tras cada confirmación (`guardar_bd()`). La carga aplica **validación estructural**: rechaza el documento si no contiene las tres claves de primer nivel requeridas o si el JSON está corrupto.
+El chatbot guía al usuario durante el proceso de realización de un pedido.
 
-El documento expone tres colecciones principales:
+El flujo principal es:
 
-### Colección `productos` (catálogo de inventario)
+```text
+Inicio
+  ↓
+Mostrar productos
+  ↓
+Seleccionar producto
+  ↓
+Validar producto y stock
+  ↓
+Elegir modalidad
+  ↓
+Delivery / Retiro
+  ↓
+Seleccionar medio de pago
+  ↓
+Confirmar pedido
+  ↓
+Preparación
+  ↓
+Retiro / Reparto
+  ↓
+Pedido entregado
+```
 
-Diccionario **indexado por identificador de producto** (clave string `"1"`–`"7"`). Cada entrada describe un combo y contiene el campo crítico `stock`, sujeto a **decremento atómico** ante cada compra exitosa (`bd["productos"][carrito["id"]]["stock"] -= 1`), encapsulado en manejo de excepciones para preservar la integridad ante claves o tipos inválidos.
+Además del flujo principal, se contemplan caminos alternativos y entradas inválidas.
+
+---
+
+## Máquina de Estados Finitos
+
+El chatbot utiliza una **Máquina de Estados Finitos (FSM)** para determinar en qué etapa se encuentra cada pedido y qué entradas son válidas en ese momento.
+
+Los principales estados son:
+
+| Estado | Función |
+|---|---|
+| `IDLE` | Espera el inicio de una nueva conversación. |
+| `ESPERANDO_PRODUCTO` | Espera y valida la selección de un producto. |
+| `ESPERANDO_MODALIDAD` | Espera la elección entre Delivery y Retiro. |
+| `ESPERANDO_DIRECCION` | Solicita y valida la dirección para Delivery. |
+| `ESPERANDO_CONFIRMACION_RETIRO` | Ofrece Retiro cuando la dirección está fuera de cobertura. |
+| `ESPERANDO_PAGO` | Espera la selección del medio de pago. |
+| `ESPERANDO_COMPROBANTE` | Espera y valida el comprobante de transferencia. |
+| `PEDIDO_CONFIRMADO` | El pedido fue validado y registrado. |
+| `EN_PRODUCCION` | Cocina se encuentra preparando el pedido. |
+| `LISTO` | El pedido está preparado. |
+| `EN_REPARTO` | El pedido se encuentra en proceso de entrega. |
+| `ENTREGADO` | El pedido fue entregado o retirado. |
+
+Una vez finalizado el pedido, el sistema vuelve al estado `IDLE` y queda disponible para iniciar una nueva operación.
+
+---
+
+## Caminos alternativos y validaciones
+
+El sistema contempla situaciones que pueden ocurrir durante un pedido.
+
+### Producto inválido
+
+Si el usuario selecciona una opción inexistente, el sistema informa el error y permanece en `ESPERANDO_PRODUCTO`.
+
+El usuario puede realizar una nueva selección sin reiniciar el proceso.
+
+### Producto sin stock
+
+Si el producto existe pero no posee stock disponible, el sistema informa la situación y permite seleccionar otro producto.
+
+### Delivery fuera de cobertura
+
+Si el cliente selecciona Delivery pero la dirección ingresada se encuentra fuera de la zona de cobertura, el chatbot ofrece la posibilidad de **Retiro en local**.
+
+Si el cliente acepta, el pedido continúa hacia el pago.
+
+Si rechaza la alternativa, el pedido se cancela.
+
+### Método de pago inválido
+
+Una opción de pago incorrecta no finaliza el pedido. El sistema informa el error y vuelve a solicitar el medio de pago.
+
+### Comprobante inválido
+
+Si se selecciona Transferencia y el comprobante ingresado no cumple con la validación, el chatbot informa el error y permite volver a ingresarlo.
+
+El pedido permanece en `ESPERANDO_COMPROBANTE` hasta recibir una entrada válida o hasta que el usuario decida finalizar la simulación.
+
+---
+
+## Flujo posterior a la confirmación
+
+Cuando el pedido es confirmado:
+
+1. Se registra el pedido.
+2. Se actualiza el stock.
+3. Se notifica a Cocina.
+4. El pedido pasa a `EN_PRODUCCION`.
+5. Cocina informa cuando está `LISTO`.
+
+A partir de allí, el flujo depende de la modalidad seleccionada.
+
+### Retiro en local
+
+El cliente es informado de que el pedido está listo.
+
+Cuando se confirma el retiro, el pedido pasa a `ENTREGADO`.
+
+### Delivery
+
+El pedido pasa a `EN_REPARTO`.
+
+El repartidor confirma la entrega y el pedido pasa a `ENTREGADO`.
+
+Finalmente, el sistema limpia los datos temporales y vuelve a `IDLE`.
+
+---
+
+## Persistencia de datos
+
+El proyecto utiliza el archivo:
+
+```text
+base_datos.json
+```
+
+como mecanismo de persistencia simulado.
+
+El archivo contiene tres estructuras principales:
+
+### `productos`
+
+Almacena el catálogo de productos.
+
+Ejemplo:
 
 ```json
-"productos": {
-    "1": { "nombre": "Combo Burger Simple", "precio": 4500, "stock": 5 }
+{
+    "nombre": "Combo Burger Simple",
+    "precio": 4500,
+    "stock": 5
 }
 ```
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `nombre` | `string` | Denominación comercial del combo. |
-| `precio` | `int` | Importe a abonar, en moneda local. |
-| `stock` | `int` | **Campo crítico.** Unidades disponibles; decrementado atómicamente al confirmar el pedido. Valor `0` inhabilita la selección. |
+El stock se consulta antes de permitir avanzar con el pedido y se actualiza cuando el pedido es confirmado.
 
-### Colección `zonas_cobertura`
+### `zonas_cobertura`
 
-Arreglo de cadenas que enumera los barrios habilitados para Delivery. Funciona como **conjunto de pertenencia** consultado durante la validación de cobertura (comparación sobre el barrio normalizado a minúsculas).
+Contiene las zonas habilitadas para Delivery.
 
-### Colección `pedidos_registrados` (registro histórico de transacciones)
+El chatbot compara la dirección ingresada con esta lista para determinar si el pedido puede enviarse a domicilio.
 
-Arreglo append-only que constituye el **registro histórico de transacciones confirmadas**. Cada nuevo pedido se anexa (`append`) y se persiste atómicamente junto con el decremento de stock, garantizando que producción y registro queden sincronizados.
+### `pedidos_registrados`
+
+Mantiene el historial de pedidos confirmados.
+
+Cada pedido puede almacenar información como:
 
 ```json
-"pedidos_registrados": [
-    { "producto": "Combo Pollo Crispy", "modalidad": "Delivery", "pago": "Transferencia", "direccion": "macrocentro" }
-]
+{
+    "producto": "Combo Burger Simple",
+    "modalidad": "Delivery",
+    "pago": "Transferencia",
+    "direccion": "macrocentro",
+    "estado": "PEDIDO_CONFIRMADO"
+}
 ```
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `producto` | `string` | Nombre del combo confirmado. |
-| `modalidad` | `string` | `Delivery` o `Retiro`. |
-| `pago` | `string` | `Efectivo` o `Transferencia`. |
-| `direccion` | `string \| null` | Barrio de entrega; `null` en modalidad Retiro. |
+El estado del pedido se actualiza posteriormente a medida que avanza por producción y entrega.
+
+---
+
+## Modelado BPMN
+
+El proyecto incluye dos modelos principales:
+
+### AS-IS
+
+Representa el proceso original de Burger Home, donde la atención y gestión del pedido depende principalmente de la intervención manual de un empleado.
+
+### TO-BE
+
+Representa el proceso mejorado mediante la incorporación del chatbot.
+
+El modelo contempla:
+
+- Tareas realizadas por el cliente.
+- Tareas automatizadas por el sistema.
+- Intervención de Cocina.
+- Intervención del Repartidor.
+- Decisiones mediante gateways exclusivos.
+- Validación de producto y stock.
+- Cobertura de Delivery.
+- Alternativa de Retiro.
+- Validación del medio de pago.
+- Confirmación y preparación.
+- Retiro o entrega del pedido.
+
+La lógica implementada en Python busca mantener coherencia con este proceso.
+
+---
+
+## Pruebas
+
+El sistema fue probado tanto sobre el flujo principal como sobre diferentes caminos alternativos.
+
+Entre las situaciones verificadas se encuentran:
+
+- Opciones de producto inválidas.
+- Productos sin stock.
+- Modalidades inválidas.
+- Direcciones fuera de cobertura.
+- Métodos de pago inválidos.
+- Comprobantes inválidos.
+- Retiro en local.
+- Delivery.
+- Preparación y entrega completa del pedido.
+
+Estas pruebas permiten comprobar que una entrada incorrecta no finalice innecesariamente el proceso cuando existe una alternativa válida.
+
+---
+
+## Uso de Inteligencia Artificial
+
+Durante el desarrollo del proyecto se utilizaron herramientas de Inteligencia Artificial como apoyo.
+
+### Claude CLI
+
+Utilizado principalmente para:
+
+- Revisión del código.
+- Detección de posibles inconsistencias.
+- Apoyo en la documentación.
+- Generación y revisión del manual de usuario.
+
+### Gemini
+
+Utilizado como herramienta de consulta y apoyo durante:
+
+- Planificación del proyecto.
+- Revisión del modelado BPMN.
+- Análisis de aspectos técnicos del proceso.
+
+Las respuestas generadas por las herramientas fueron revisadas y contrastadas con la consigna, el modelo BPMN y el funcionamiento real del programa antes de aplicar modificaciones.
+
+---
+
+## Documentación
+
+La documentación completa del Trabajo Práctico Integrador se encuentra en la carpeta:
+
+```text
+/doc
+```
+
+Allí se incluye el informe del proyecto con:
+
+- Análisis de la organización.
+- Enfoque sistémico.
+- Proceso AS-IS.
+- Propuesta TO-BE.
+- Diagramas BPMN 2.0.
+- Arquitectura de la solución.
+- Máquina de Estados.
+- Diccionario de datos.
+- Pruebas.
+- Evidencias de utilización de Inteligencia Artificial.
+
+---
+
+## Autor
+
+**Rodrigo Moyano**
+
+Tecnicatura Universitaria en Programación  
+Universidad Tecnológica Nacional
