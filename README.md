@@ -8,27 +8,23 @@ Trabajo Práctico Integrador de la materia **Organización Empresarial**.
 
 Burger Home es una hamburguesería ficticia utilizada como caso de estudio para analizar y mejorar su proceso de gestión de pedidos.
 
-El proceso original se realiza principalmente de forma manual mediante WhatsApp. Como propuesta de mejora se desarrolló una simulación de chatbot en **Python**, modelada previamente mediante **BPMN 2.0**.
+El proceso original se realiza principalmente de forma manual mediante WhatsApp. Como propuesta de mejora se desarrolló una simulación de chatbot en **Python**, modelada mediante **BPMN 2.0**.
 
-El chatbot utiliza una **Máquina de Estados Finitos (FSM)** para controlar las diferentes etapas de la conversación y un archivo **JSON** como mecanismo de persistencia simulado para almacenar productos, stock, zonas de cobertura y pedidos registrados.
+El chatbot utiliza una **Máquina de Estados Finitos (FSM)** para controlar las diferentes etapas del proceso y un archivo **JSON** como mecanismo de persistencia simulado para almacenar productos, stock, zonas de cobertura y pedidos registrados.
 
-El objetivo principal del proyecto es mantener coherencia entre:
-
-- El proceso de negocio modelado mediante BPMN.
-- Las decisiones y caminos alternativos del proceso.
-- La Máquina de Estados.
-- La lógica implementada en Python.
+El objetivo principal del proyecto es mantener coherencia entre el proceso de negocio modelado mediante BPMN, las decisiones del proceso, la Máquina de Estados y la lógica implementada en Python.
 
 ---
 
 ## Tecnologías utilizadas
 
-- Python 3.10+
+- Python 3
 - JSON
 - BPMN 2.0
-- Git y GitHub
+- Git
+- GitHub
 
-No se requieren librerías externas de Python.
+El programa no requiere librerías externas de Python.
 
 ---
 
@@ -37,42 +33,61 @@ No se requieren librerías externas de Python.
 ```text
 TPI1_OE/
 │
+├── README.md
 ├── chatbot_simulado.py
 ├── base_datos.json
-├── README.md
 │
 └── doc/
-    ├── TPI_Organizacion_Empresarial_Rodrigo_Moyano.pdf
-    └── TPI_Organizacion_Empresarial_Rodrigo_Moyano.docx
+    ├── MANUAL_USUARIO.md
+    ├── diagrama_proceso.bpmn
+    ├── diagrama_proceso_bpmn.svg
+    ├── TPI_Organizacion_Empresarial_Rodrigo_Moyano.docx
+    └── TPI_Organizacion_Empresarial_Rodrigo_Moyano.pdf
 ```
 
-### Archivos principales
+> Los archivos DOCX y PDF corresponden a la documentación final del Trabajo Práctico Integrador.
 
-**`chatbot_simulado.py`**
+---
+
+## Archivos principales
+
+### `chatbot_simulado.py`
 
 Contiene la lógica principal del chatbot, las validaciones y la Máquina de Estados que controla el avance del pedido.
 
-**`base_datos.json`**
+### `base_datos.json`
 
-Archivo utilizado como mecanismo de persistencia. Contiene:
+Archivo utilizado como mecanismo de persistencia simulado. Contiene:
 
-- Catálogo de productos.
+- Productos.
 - Precios.
 - Stock.
 - Zonas de cobertura.
 - Pedidos registrados.
 
-**`doc/`**
+### `doc/MANUAL_USUARIO.md`
 
-Contiene la documentación correspondiente al Trabajo Práctico Integrador, incluyendo los diagramas BPMN AS-IS y TO-BE.
+Contiene las instrucciones necesarias para ejecutar y utilizar el chatbot.
+
+### `doc/diagrama_proceso.bpmn`
+
+Archivo editable correspondiente al modelado BPMN del proceso.
+
+### `doc/diagrama_proceso_bpmn.svg`
+
+Versión gráfica del diagrama BPMN.
+
+### Documentación del TPI
+
+Los archivos DOCX y PDF contienen el informe final del Trabajo Práctico Integrador.
 
 ---
 
-## Ejecución
+## Instalación y ejecución
 
 ### Requisitos
 
-Tener instalado **Python 3.10 o superior**.
+Tener instalado **Python 3**.
 
 El archivo `base_datos.json` debe encontrarse en el mismo directorio que `chatbot_simulado.py`.
 
@@ -83,7 +98,7 @@ git clone https://github.com/ElRodriCAT/TPI1_OE.git
 cd TPI1_OE
 ```
 
-### Ejecutar el chatbot
+### Ejecutar
 
 ```bash
 python chatbot_simulado.py
@@ -95,7 +110,7 @@ En sistemas donde Python se ejecuta mediante `python3`:
 python3 chatbot_simulado.py
 ```
 
-Para iniciar la simulación se debe ingresar un mensaje, por ejemplo:
+Para comenzar la simulación se puede ingresar un mensaje como:
 
 ```text
 Hola
@@ -107,15 +122,15 @@ La palabra:
 salir
 ```
 
-permite finalizar la simulación de manera controlada.
+permite finalizar la simulación.
 
 ---
 
 ## Funcionamiento general
 
-El chatbot guía al usuario durante el proceso de realización de un pedido.
+El chatbot guía al usuario durante la realización de un pedido.
 
-El flujo principal es:
+El flujo general es:
 
 ```text
 Inicio
@@ -141,15 +156,15 @@ Retiro / Reparto
 Pedido entregado
 ```
 
-Además del flujo principal, se contemplan caminos alternativos y entradas inválidas.
+Además del flujo principal, el sistema contempla entradas inválidas y caminos alternativos.
 
 ---
 
 ## Máquina de Estados Finitos
 
-El chatbot utiliza una **Máquina de Estados Finitos (FSM)** para determinar en qué etapa se encuentra cada pedido y qué entradas son válidas en ese momento.
+El chatbot utiliza una **Máquina de Estados Finitos (FSM)** para determinar en qué etapa se encuentra el proceso y qué acciones son válidas en cada momento.
 
-Los principales estados son:
+Los estados utilizados son:
 
 | Estado | Función |
 |---|---|
@@ -172,35 +187,27 @@ Una vez finalizado el pedido, el sistema vuelve al estado `IDLE` y queda disponi
 
 ## Caminos alternativos y validaciones
 
-El sistema contempla situaciones que pueden ocurrir durante un pedido.
-
 ### Producto inválido
 
-Si el usuario selecciona una opción inexistente, el sistema informa el error y permanece en `ESPERANDO_PRODUCTO`.
-
-El usuario puede realizar una nueva selección sin reiniciar el proceso.
+Si el usuario selecciona una opción inexistente, el sistema informa el error y permanece en `ESPERANDO_PRODUCTO`, permitiendo realizar una nueva selección.
 
 ### Producto sin stock
 
-Si el producto existe pero no posee stock disponible, el sistema informa la situación y permite seleccionar otro producto.
+Si el producto seleccionado no posee stock disponible, el sistema informa la situación y permite seleccionar otro producto.
 
 ### Delivery fuera de cobertura
 
-Si el cliente selecciona Delivery pero la dirección ingresada se encuentra fuera de la zona de cobertura, el chatbot ofrece la posibilidad de **Retiro en local**.
+Si la dirección ingresada no se encuentra dentro de las zonas de cobertura, el chatbot ofrece **Retiro en local** como alternativa.
 
-Si el cliente acepta, el pedido continúa hacia el pago.
-
-Si rechaza la alternativa, el pedido se cancela.
+Si el cliente acepta, el proceso continúa hacia el pago. Si rechaza la alternativa, el pedido se cancela.
 
 ### Método de pago inválido
 
-Una opción de pago incorrecta no finaliza el pedido. El sistema informa el error y vuelve a solicitar el medio de pago.
+Una opción de pago incorrecta no finaliza el pedido. El sistema informa el error y solicita nuevamente el medio de pago.
 
 ### Comprobante inválido
 
-Si se selecciona Transferencia y el comprobante ingresado no cumple con la validación, el chatbot informa el error y permite volver a ingresarlo.
-
-El pedido permanece en `ESPERANDO_COMPROBANTE` hasta recibir una entrada válida o hasta que el usuario decida finalizar la simulación.
+Si el comprobante ingresado no cumple con la validación, el sistema informa el error y permite ingresarlo nuevamente.
 
 ---
 
@@ -214,27 +221,17 @@ Cuando el pedido es confirmado:
 4. El pedido pasa a `EN_PRODUCCION`.
 5. Cocina informa cuando está `LISTO`.
 
-A partir de allí, el flujo depende de la modalidad seleccionada.
+Si la modalidad es **Retiro**, el cliente es notificado y posteriormente confirma el retiro.
 
-### Retiro en local
+Si la modalidad es **Delivery**, el pedido pasa a `EN_REPARTO` y el repartidor confirma la entrega.
 
-El cliente es informado de que el pedido está listo.
-
-Cuando se confirma el retiro, el pedido pasa a `ENTREGADO`.
-
-### Delivery
-
-El pedido pasa a `EN_REPARTO`.
-
-El repartidor confirma la entrega y el pedido pasa a `ENTREGADO`.
-
-Finalmente, el sistema limpia los datos temporales y vuelve a `IDLE`.
+En ambos casos el pedido finalmente pasa a `ENTREGADO`.
 
 ---
 
-## Persistencia de datos
+## Persistencia
 
-El proyecto utiliza el archivo:
+El proyecto utiliza:
 
 ```text
 base_datos.json
@@ -242,103 +239,82 @@ base_datos.json
 
 como mecanismo de persistencia simulado.
 
-El archivo contiene tres estructuras principales:
+El archivo contiene:
 
 ### `productos`
 
-Almacena el catálogo de productos.
-
-Ejemplo:
-
-```json
-{
-    "nombre": "Combo Burger Simple",
-    "precio": 4500,
-    "stock": 5
-}
-```
-
-El stock se consulta antes de permitir avanzar con el pedido y se actualiza cuando el pedido es confirmado.
+Catálogo con nombre, precio y stock de cada producto.
 
 ### `zonas_cobertura`
 
-Contiene las zonas habilitadas para Delivery.
-
-El chatbot compara la dirección ingresada con esta lista para determinar si el pedido puede enviarse a domicilio.
+Zonas habilitadas para realizar entregas mediante Delivery.
 
 ### `pedidos_registrados`
 
-Mantiene el historial de pedidos confirmados.
+Historial de pedidos confirmados y sus respectivos estados.
 
-Cada pedido puede almacenar información como:
+El stock se consulta durante la selección y se actualiza cuando se registra un pedido.
 
-```json
-{
-    "producto": "Combo Burger Simple",
-    "modalidad": "Delivery",
-    "pago": "Transferencia",
-    "direccion": "macrocentro",
-    "estado": "PEDIDO_CONFIRMADO"
-}
-```
-
-El estado del pedido se actualiza posteriormente a medida que avanza por producción y entrega.
+Los cambios realizados sobre los pedidos también se almacenan en el archivo JSON.
 
 ---
 
 ## Modelado BPMN
 
-El proyecto incluye dos modelos principales:
+El proyecto analiza dos situaciones:
 
 ### AS-IS
 
-Representa el proceso original de Burger Home, donde la atención y gestión del pedido depende principalmente de la intervención manual de un empleado.
+Representa el proceso original de Burger Home, donde la gestión del pedido se realiza principalmente de manera manual.
 
 ### TO-BE
 
 Representa el proceso mejorado mediante la incorporación del chatbot.
 
-El modelo contempla:
+El modelo TO-BE contempla:
 
-- Tareas realizadas por el cliente.
-- Tareas automatizadas por el sistema.
-- Intervención de Cocina.
-- Intervención del Repartidor.
-- Decisiones mediante gateways exclusivos.
-- Validación de producto y stock.
-- Cobertura de Delivery.
+- Cliente.
+- Chatbot / Sistema.
+- Cocina.
+- Repartidor.
+- Validación de producto.
+- Validación de stock.
+- Selección de Delivery o Retiro.
+- Validación de cobertura.
 - Alternativa de Retiro.
-- Validación del medio de pago.
-- Confirmación y preparación.
-- Retiro o entrega del pedido.
+- Selección y validación del pago.
+- Registro del pedido.
+- Preparación.
+- Retiro o reparto.
+- Finalización del pedido.
 
-La lógica implementada en Python busca mantener coherencia con este proceso.
+La implementación en Python busca mantener coherencia con el proceso representado mediante BPMN.
 
 ---
 
 ## Pruebas
 
-El sistema fue probado tanto sobre el flujo principal como sobre diferentes caminos alternativos.
+Se realizaron pruebas sobre el flujo principal y sobre caminos alternativos.
 
 Entre las situaciones verificadas se encuentran:
 
-- Opciones de producto inválidas.
-- Productos sin stock.
-- Modalidades inválidas.
-- Direcciones fuera de cobertura.
-- Métodos de pago inválidos.
-- Comprobantes inválidos.
+- Producto inválido.
+- Producto sin stock.
+- Modalidad inválida.
+- Dirección fuera de cobertura.
+- Método de pago inválido.
+- Comprobante inválido.
 - Retiro en local.
 - Delivery.
-- Preparación y entrega completa del pedido.
+- Preparación y entrega completa.
 
-Estas pruebas permiten comprobar que una entrada incorrecta no finalice innecesariamente el proceso cuando existe una alternativa válida.
+El objetivo de estas pruebas es comprobar que el sistema pueda responder ante entradas incorrectas y continuar el proceso cuando exista una alternativa válida.
 
 ---
 
 ## Uso de Inteligencia Artificial
 
-Durante el desarrollo del proyecto se utilizaron herramientas de Inteligencia Artificial como apoyo.
+Durante el desarrollo se utilizaron herramientas de Inteligencia Artificial como apoyo.
 
 ### Claude CLI
 
@@ -347,40 +323,29 @@ Utilizado principalmente para:
 - Revisión del código.
 - Detección de posibles inconsistencias.
 - Apoyo en la documentación.
-- Generación y revisión del manual de usuario.
+- Revisión del manual de usuario.
 
 ### Gemini
 
-Utilizado como herramienta de consulta y apoyo durante:
+Utilizado como herramienta de consulta y apoyo para:
 
 - Planificación del proyecto.
 - Revisión del modelado BPMN.
-- Análisis de aspectos técnicos del proceso.
+- Análisis de aspectos del proceso.
 
-Las respuestas generadas por las herramientas fueron revisadas y contrastadas con la consigna, el modelo BPMN y el funcionamiento real del programa antes de aplicar modificaciones.
+Las respuestas generadas por las herramientas fueron revisadas antes de incorporar modificaciones al proyecto.
 
 ---
 
 ## Documentación
 
-La documentación completa del Trabajo Práctico Integrador se encuentra en la carpeta:
+La documentación complementaria se encuentra en:
 
 ```text
 /doc
 ```
 
-Allí se incluye el informe del proyecto con:
-
-- Análisis de la organización.
-- Enfoque sistémico.
-- Proceso AS-IS.
-- Propuesta TO-BE.
-- Diagramas BPMN 2.0.
-- Arquitectura de la solución.
-- Máquina de Estados.
-- Diccionario de datos.
-- Pruebas.
-- Evidencias de utilización de Inteligencia Artificial.
+Esta carpeta contiene el manual de usuario, los archivos correspondientes al modelado BPMN y la documentación final del Trabajo Práctico Integrador.
 
 ---
 

@@ -1,135 +1,357 @@
-# Manual de Usuario — Chatbot Simulado Burger Home
+# Manual de Usuario - Burger Home
 
-## ¿Qué es este sistema?
+## 1. Introducción
 
-Es un simulador de chatbot por consola que reproduce el flujo de toma de pedidos de una hamburguesería (Burger Home). Está diseñado para demostrar una máquina de estados conversacional con persistencia en archivo JSON.
+Burger Home es una simulación de un sistema automatizado de gestión de pedidos desarrollada en Python.
 
----
+El usuario interactúa con un chatbot desde la consola. El sistema permite seleccionar productos, verificar disponibilidad, elegir entre Delivery o Retiro, seleccionar un medio de pago y completar el proceso hasta la entrega del pedido.
 
-## Requisitos previos
-
-- Python 3.10+ instalado
-- Archivo `base_datos.json` presente en el directorio raíz, junto a `chatbot_simulado.py`
+El sistema utiliza una Máquina de Estados Finitos (FSM) para controlar las diferentes etapas de la interacción.
 
 ---
 
-## Cómo ejecutar
+## 2. Requisitos
+
+Para ejecutar el sistema se necesita:
+
+- Python 3.
+- `chatbot_simulado.py`.
+- `base_datos.json`.
+
+Ambos archivos deben encontrarse en el mismo directorio.
+
+No es necesario instalar librerías externas.
+
+---
+
+## 3. Ejecución
+
+Desde una terminal ubicada en la carpeta del proyecto ejecutar:
 
 ```bash
 python chatbot_simulado.py
 ```
 
----
+También puede utilizarse:
 
-## Flujo de conversación
-
-El bot guía al cliente por los siguientes pasos en orden:
-
-### 1. Saludo — Ver el menú
-
-Al escribir cualquier mensaje (por ejemplo `Hola`), el bot muestra los productos disponibles con su precio y stock actual.
-
-```
-Cliente 👤: Hola
-Bot ⚙️: ¡Hola! Bienvenido a Burger Home. Este es nuestro menú disponible:
-  [1] Combo Burger Simple - $4500 (Stock: 5)
-  [2] Combo Burger Doble - $5800 (Stock: 10)
-  ...
+```bash
+python3 chatbot_simulado.py
 ```
 
-### 2. Seleccionar producto
-
-Ingresá el número del combo que querés pedir (1 al 7).
-
-- Si el número no existe en el menú, el bot te vuelve a pedir una opción válida.
-- Si el producto no tiene stock, el pedido se cancela automáticamente.
-
-### 3. Elegir modalidad de entrega
-
-```
-[1] Delivery
-[2] Retiro en Local
-```
-
-- **Delivery:** el bot te pedirá tu barrio para verificar cobertura.
-- **Retiro:** pasa directo al paso de pago.
-
-### 4. Verificación de zona (solo Delivery)
-
-Ingresá el nombre de tu barrio. Las zonas con cobertura disponibles son:
-
-| Barrio        |
-|---------------|
-| Centro        |
-| Macrocentro   |
-| Barrio Norte  |
-| Barrio Sur    |
-| Barrio Oeste  |
-
-Si el barrio no tiene cobertura, el pedido se cancela.
-
-### 5. Método de pago
-
-```
-[1] Efectivo
-[2] Transferencia Bancaria
-```
-
-- **Efectivo:** el pedido se confirma de inmediato.
-- **Transferencia:** el bot te pedirá que adjuntes el comprobante. En la simulación, escribí un nombre de archivo válido (mínimo 3 caracteres y extensión `jpg`, `jpeg`, `png` o `pdf`, por ejemplo `comprobante.jpg`). Tenés hasta **3 intentos**; si los superás, el pedido se cancela.
-
-### 6. Confirmación del pedido
-
-Una vez confirmado, el bot:
-- Descuenta una unidad del stock del producto seleccionado.
-- Registra el pedido en `base_datos.json`.
-- Muestra una alerta de envío a cocina.
+dependiendo de la instalación de Python.
 
 ---
 
-## Salir del simulador
+## 4. Inicio
 
-En cualquier momento, escribí `salir` para terminar la sesión sin completar el pedido.
+Al ejecutar el programa, el chatbot queda esperando el inicio de una conversación.
 
+Por ejemplo:
+
+```text
+Hola
 ```
-Cliente 👤: salir
+
+El sistema responde mostrando el menú de productos disponibles.
+
+---
+
+## 5. Selección de producto
+
+El chatbot muestra los productos disponibles junto con su precio y stock.
+
+El usuario debe ingresar la opción correspondiente al producto que desea comprar.
+
+### Producto inválido
+
+Si se ingresa una opción inexistente, el chatbot informa el error y permite realizar una nueva selección.
+
+El proceso no se cancela.
+
+### Producto sin stock
+
+Si el producto seleccionado no tiene stock disponible, el chatbot informa la situación y vuelve a permitir la selección de otro producto.
+
+---
+
+## 6. Modalidad de entrega
+
+Después de seleccionar un producto válido, el sistema solicita elegir una modalidad:
+
+```text
+1. Delivery
+2. Retiro
+```
+
+### Retiro
+
+Si se selecciona Retiro, no es necesario ingresar una dirección y el proceso continúa hacia la selección del medio de pago.
+
+### Delivery
+
+Si se selecciona Delivery, el chatbot solicita una dirección o zona.
+
+El sistema compara la información ingresada con las zonas de cobertura almacenadas en `base_datos.json`.
+
+---
+
+## 7. Dirección fuera de cobertura
+
+Si la dirección ingresada no se encuentra dentro de la zona de cobertura, el pedido no se cancela inmediatamente.
+
+El chatbot ofrece continuar mediante **Retiro en local**.
+
+### Si el cliente acepta
+
+La modalidad cambia a Retiro y el proceso continúa hacia el pago.
+
+### Si el cliente rechaza
+
+El pedido se cancela.
+
+---
+
+## 8. Medio de pago
+
+El sistema permite seleccionar el medio de pago correspondiente.
+
+Las opciones disponibles son:
+
+- Efectivo.
+- Transferencia.
+
+Si se ingresa una opción inválida, el chatbot informa el error y solicita nuevamente el medio de pago.
+
+---
+
+## 9. Pago en efectivo
+
+Si el cliente selecciona Efectivo, el pedido puede ser confirmado sin necesidad de ingresar un comprobante.
+
+El sistema registra el pedido y actualiza el stock.
+
+---
+
+## 10. Pago mediante transferencia
+
+Si se selecciona Transferencia, el chatbot solicita ingresar un comprobante.
+
+### Comprobante válido
+
+Si el comprobante cumple con la validación, el pedido continúa y es confirmado.
+
+### Comprobante inválido
+
+Si el comprobante no es válido, el sistema informa el error y permite ingresarlo nuevamente.
+
+El pedido permanece en la etapa de comprobante hasta recibir una entrada válida o finalizar la simulación.
+
+---
+
+## 11. Confirmación del pedido
+
+Una vez completadas las validaciones necesarias:
+
+1. El pedido se confirma.
+2. Se registra en `base_datos.json`.
+3. Se actualiza el stock del producto.
+4. Se notifica el pedido a Cocina.
+5. El pedido pasa al estado `EN_PRODUCCION`.
+
+---
+
+## 12. Preparación
+
+Cuando el pedido se encuentra en producción, la simulación representa la intervención de Cocina.
+
+Cocina debe indicar:
+
+```text
+listo
+```
+
+cuando finaliza la preparación.
+
+El pedido pasa entonces al estado:
+
+```text
+LISTO
 ```
 
 ---
 
-## Archivo de base de datos (`base_datos.json`)
+## 13. Pedido con Retiro
 
-El sistema lee y escribe sobre este archivo JSON. Contiene tres secciones:
+Si la modalidad seleccionada es Retiro, una vez preparado el pedido el sistema informa al cliente que se encuentra listo.
 
-| Sección              | Descripción                                         |
-|----------------------|-----------------------------------------------------|
-| `productos`          | Catálogo con nombre, precio y stock de cada combo   |
-| `zonas_cobertura`    | Lista de barrios que reciben delivery               |
-| `pedidos_registrados`| Historial de pedidos confirmados                    |
+Para representar la entrega al cliente se ingresa:
 
-> Para modificar el stock, agregar productos o ampliar zonas de cobertura, editá directamente el archivo `base_datos.json`.
+```text
+retirado
+```
 
----
+El pedido pasa al estado:
 
-## Tabla de estados internos
-
-| Estado               | Qué espera el bot              |
-|----------------------|-------------------------------|
-| `IDLE`               | Cualquier mensaje del cliente  |
-| `ESPERANDO_PRODUCTO` | Número de combo del menú       |
-| `ESPERANDO_MODALIDAD`| `1` (Delivery) o `2` (Retiro)  |
-| `ESPERANDO_DIRECCION`| Nombre del barrio              |
-| `ESPERANDO_PAGO`     | `1` (Efectivo) o `2` (Transf.) |
-| `ESPERANDO_COMPROBANTE` | Texto que simule el archivo  |
+```text
+ENTREGADO
+```
 
 ---
 
-## Casos de error y cómo se manejan
+## 14. Pedido con Delivery
 
-| Situación                        | Comportamiento del bot                        |
-|----------------------------------|-----------------------------------------------|
-| Opción de menú inválida          | Vuelve a pedir sin avanzar                    |
-| Producto sin stock               | Cancela el pedido y termina la simulación     |
-| Barrio sin cobertura             | Cancela el pedido y termina la simulación     |
-| Opción de modalidad inválida     | Vuelve a pedir sin avanzar                    |
-| Comprobante inválido (corto o sin extensión válida) | Vuelve a pedir el comprobante; tras 3 intentos cancela el pedido |
+Si la modalidad seleccionada es Delivery, cuando Cocina finaliza la preparación el pedido pasa al proceso de reparto.
+
+El sistema actualiza el pedido al estado:
+
+```text
+EN_REPARTO
+```
+
+Para representar la confirmación realizada por el repartidor se ingresa:
+
+```text
+entregado
+```
+
+El pedido pasa al estado:
+
+```text
+ENTREGADO
+```
+
+---
+
+## 15. Finalización
+
+Una vez que el pedido llega a `ENTREGADO`, el chatbot finaliza el proceso actual, limpia los datos temporales de la operación y vuelve al estado:
+
+```text
+IDLE
+```
+
+El sistema queda preparado para iniciar un nuevo pedido.
+
+---
+
+## 16. Estados del sistema
+
+| Estado | Descripción |
+|---|---|
+| `IDLE` | Espera el inicio de una conversación. |
+| `ESPERANDO_PRODUCTO` | Espera la selección de un producto. |
+| `ESPERANDO_MODALIDAD` | Espera la elección entre Delivery y Retiro. |
+| `ESPERANDO_DIRECCION` | Espera la dirección para un pedido con Delivery. |
+| `ESPERANDO_CONFIRMACION_RETIRO` | Espera la respuesta ante la alternativa de Retiro. |
+| `ESPERANDO_PAGO` | Espera la selección del medio de pago. |
+| `ESPERANDO_COMPROBANTE` | Espera un comprobante válido. |
+| `PEDIDO_CONFIRMADO` | El pedido fue confirmado y registrado. |
+| `EN_PRODUCCION` | Cocina está preparando el pedido. |
+| `LISTO` | El pedido está preparado. |
+| `EN_REPARTO` | El pedido se encuentra en proceso de entrega. |
+| `ENTREGADO` | El pedido fue entregado o retirado. |
+
+---
+
+## 17. Persistencia
+
+El sistema utiliza:
+
+```text
+base_datos.json
+```
+
+como mecanismo de persistencia simulado.
+
+El archivo almacena:
+
+- Productos.
+- Precios.
+- Stock.
+- Zonas de cobertura.
+- Pedidos registrados.
+
+Cuando se confirma un pedido, el stock correspondiente se modifica y el pedido queda registrado.
+
+Los cambios posteriores de estado también se almacenan.
+
+---
+
+## 18. Manejo de errores y caminos alternativos
+
+El chatbot contempla diferentes situaciones que pueden ocurrir durante el proceso:
+
+| Situación | Respuesta del sistema |
+|---|---|
+| Producto inválido | Informa el error y permite elegir nuevamente. |
+| Producto sin stock | Informa la falta de stock y permite elegir otro. |
+| Modalidad inválida | Solicita nuevamente la modalidad. |
+| Dirección fuera de cobertura | Ofrece Retiro en local. |
+| Retiro alternativo rechazado | Cancela el pedido. |
+| Medio de pago inválido | Solicita nuevamente el medio de pago. |
+| Comprobante inválido | Solicita nuevamente el comprobante. |
+
+Estas validaciones permiten continuar el proceso cuando el error puede ser corregido sin necesidad de reiniciar toda la operación.
+
+---
+
+## 19. Salir del programa
+
+Durante la simulación puede utilizarse:
+
+```text
+salir
+```
+
+para finalizar la ejecución de manera controlada.
+
+---
+
+## 20. Ejemplo de flujo completo
+
+Un ejemplo de pedido mediante Delivery y Transferencia es:
+
+```text
+Inicio de conversación
+        ↓
+Selección de producto
+        ↓
+Validación de stock
+        ↓
+Delivery
+        ↓
+Ingreso de dirección
+        ↓
+Validación de cobertura
+        ↓
+Transferencia
+        ↓
+Ingreso de comprobante
+        ↓
+Confirmación del pedido
+        ↓
+EN_PRODUCCION
+        ↓
+LISTO
+        ↓
+EN_REPARTO
+        ↓
+ENTREGADO
+```
+
+Un pedido mediante Retiro sigue el mismo proceso inicial, pero después de la preparación no pasa por `EN_REPARTO`.
+
+---
+
+## 21. Archivos relacionados
+
+La documentación complementaria del proyecto se encuentra en la carpeta `doc/`.
+
+Allí se incluyen:
+
+- Manual de usuario.
+- Archivo editable del diagrama BPMN.
+- Diagrama BPMN en formato SVG.
+- Informe del Trabajo Práctico Integrador.
+
+El código fuente y el archivo JSON se encuentran en la raíz del repositorio.
